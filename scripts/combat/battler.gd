@@ -37,7 +37,7 @@ func heal(n: int) -> int:
 func revive(pct: float) -> bool:
 	if not is_ko():
 		return false
-	hp = clampi(ceili(data.max_hp * pct), 1, data.max_hp)
+	hp = clampi(DamageCalc.ceil_pct(data.max_hp, pct), 1, data.max_hp)
 	return true
 
 
