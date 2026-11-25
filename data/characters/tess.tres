@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BattlerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/battler_data.gd" id="1_cmq8w"]
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="2_35muj"]
+[ext_resource type="Resource" path="res://data/skills/flare.tres" id="3_fbj8b"]
+
+[resource]
+script = ExtResource("1_cmq8w")
+id = &"tess"
+display_name = "Tess"
+max_hp = 90
+atk = 24
+def = 7
+skills = Array[ExtResource("2_35muj")]([ExtResource("3_fbj8b")])
+color = Color(0.8509804, 0.3254902, 0.30980393, 1)

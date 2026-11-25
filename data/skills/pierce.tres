@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="1_i1l7g"]
+
+[resource]
+script = ExtResource("1_i1l7g")
+id = &"pierce"
+display_name = "Pierce"
+sp_cost = 2
+power = 1.5
+timed = true

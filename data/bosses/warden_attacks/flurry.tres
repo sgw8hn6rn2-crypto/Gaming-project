@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="BossAttack" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/boss_attack.gd" id="1_q510t"]
+
+[resource]
+script = ExtResource("1_q510t")
+id = &"flurry"
+display_name = "Flurry"
+power = 0.6
+hit_times = PackedFloat32Array(0.6, 0.9, 1.2)
+weight = 3
+telegraph_text = "The Warden readies a flurry!"

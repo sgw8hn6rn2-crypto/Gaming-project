@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BattlerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/battler_data.gd" id="1_6bhdl"]
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="2_g575c"]
+[ext_resource type="Resource" path="res://data/skills/pierce.tres" id="3_5230c"]
+
+[resource]
+script = ExtResource("1_6bhdl")
+id = &"vey"
+display_name = "Vey"
+max_hp = 85
+atk = 20
+def = 8
+speed = 15
+defense_style = 1
+skills = Array[ExtResource("2_g575c")]([ExtResource("3_5230c")])
+color = Color(0.24705882, 0.7019608, 0.7019608, 1)

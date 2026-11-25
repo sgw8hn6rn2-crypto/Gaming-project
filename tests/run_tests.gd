@@ -5,6 +5,8 @@ const TEST_DIR := "res://tests/unit/"
 
 
 func _initialize() -> void:
+	var errors = load("res://tests/error_counter.gd").new()
+	OS.add_logger(errors)
 	var passed := 0
 	var failed := 0
 	var files := DirAccess.get_files_at(TEST_DIR)
@@ -22,7 +24,10 @@ func _initialize() -> void:
 			if not name.begins_with("test_"):
 				continue
 			var inst = script.new()
+			var before: int = errors.count
 			inst.call(name)
+			if errors.count > before:
+				inst.failures.append("%d engine/script error(s) during test" % (errors.count - before))
 			if inst.failures.is_empty():
 				print("PASS %s::%s" % [f, name])
 				passed += 1
