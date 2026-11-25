@@ -5,7 +5,7 @@ config_version=5
 
 config/name="RPG Combat Slice"
 config/features=PackedStringArray("4.6")
-run/main_scene="res://scenes/battle/battle.tscn"
+run/main_scene="res://scenes/save_point/save_point.tscn"
 
 [display]
 
