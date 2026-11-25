@@ -118,10 +118,12 @@ func choose_item(item_id: String, target: Battler) -> bool:
 	return true
 
 
-## Free swap. Stays in PLAYER_CHOOSE. Swapping out the current actor tags the
-## incoming character in to take this turn.
+## Free swap. Stays in PLAYER_CHOOSE. The current actor cannot be swapped out,
+## so a fresh bench character never acts the moment they come in.
 func swap(active_idx: int, bench_idx: int) -> bool:
 	if phase != Phase.PLAYER_CHOOSE:
+		return false
+	if active_idx >= 0 and active_idx < party.active.size() and party.active[active_idx] == actor:
 		return false
 	if not party.can_swap(active_idx, bench_idx):
 		return false
@@ -130,9 +132,6 @@ func swap(active_idx: int, bench_idx: int) -> bool:
 	party.swap(active_idx, bench_idx)
 	timeline.replace(outgoing, incoming)
 	swapped.emit(outgoing, incoming)
-	if outgoing == actor:
-		actor = incoming
-		actor_changed.emit(actor)
 	return true
 
 
@@ -145,7 +144,7 @@ func resolve_player_timing(press_delta: float) -> void:
 
 # --- Enemy side ------------------------------------------------------------
 
-func resolve_enemy_hit(hit_index: int, press_delta: float, held_at_hit: bool) -> void:
+func resolve_enemy_hit(hit_index: int, press_delta: float, held_at_hit: bool, carried_hold := false) -> void:
 	if phase != Phase.ENEMY_DEFENSE or pending_attack == null:
 		return
 	if hit_index < 0 or hit_index >= pending_attack.hit_times.size():
@@ -157,7 +156,7 @@ func resolve_enemy_hit(hit_index: int, press_delta: float, held_at_hit: bool) ->
 		var target: Battler = t
 		if target.is_ko():
 			continue
-		var r := TimingJudge.judge_defense(target.data.defense_style, press_delta, held_at_hit)
+		var r := TimingJudge.judge_defense(target.data.defense_style, press_delta, held_at_hit, carried_hold)
 		var dmg := DamageCalc.damage(boss.data.atk, pending_attack.power, TimingJudge.defense_mult(r), target.data.def)
 		target.take_damage(dmg)
 		damage_dealt.emit(target, dmg, DEFENSE_LABELS[r])

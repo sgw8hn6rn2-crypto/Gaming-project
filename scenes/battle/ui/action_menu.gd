@@ -140,7 +140,7 @@ func _set_mode(m: Mode) -> void:
 		Mode.SWAP_OUT:
 			for i in ctrl.party.active.size():
 				var b := ctrl.party.active[i]
-				_entries.append({ "label": "Out: %s" % b.data.display_name, "enabled": true, "value": i })
+				_entries.append({ "label": "Out: %s" % b.data.display_name, "enabled": b != actor, "value": i })
 		Mode.SWAP_IN:
 			for i in ctrl.party.bench.size():
 				var b := ctrl.party.bench[i]

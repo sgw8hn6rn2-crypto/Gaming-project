@@ -128,13 +128,25 @@ func test_swap_does_not_end_turn() -> void:
 	assert_false(c.swap(2, 1), "second swap refused")
 
 
-func test_swap_out_current_actor_tags_in() -> void:
+func test_cannot_swap_out_current_actor() -> void:
 	var p := _party()
 	var c := _ctrl(p, _boss(), [_attack()])
-	var incoming := p.bench[0]
-	assert_true(c.swap(0, 0))
-	assert_eq(c.actor, incoming)
-	assert_true(c.timeline.battlers.has(incoming))
+	var actor := c.actor
+	assert_false(c.swap(0, 0))
+	assert_eq(c.actor, actor)
+	assert_eq(p.active[0], actor)
+	assert_true(c.swap(1, 0), "allowance not used by refused swap")
+
+
+func test_block_carried_hold_through_controller() -> void:
+	var p := _party(1, [S.BLOCK, S.BLOCK, S.BLOCK, S.BLOCK])
+	var c := _ctrl(p, _boss(50), [_attack(false, 2)])
+	var target: Battler = c.pending_targets[0]
+	c.resolve_enemy_hit(0, -0.15, true)
+	var after_one := target.hp
+	c.resolve_enemy_hit(1, INF, true, true)
+	assert_eq(100 - after_one, DamageCalc.damage(30, 1.0, Tuning.BLOCK_MULT, 10))
+	assert_eq(after_one - target.hp, DamageCalc.damage(30, 1.0, Tuning.BLOCK_MULT, 10))
 
 
 func test_perfect_parry_no_damage_and_counter() -> void:

@@ -7,7 +7,7 @@ signal finished(victory: bool)
 const BOSS_ID := &"warden"
 const ATTACK_IMPACT := 0.5           # seconds from prompt start to impact
 const ATTACK_LATE_LIMIT := 0.4       # no press by impact + this = no press
-const DEFENSE_RESOLVE_AFTER := 0.2   # judge each hit this long after it lands
+const DEFENSE_RESOLVE_AFTER := DefenseInput.RESOLVE_AFTER  # judge each hit this long after it lands
 const CUE_LEAD := 0.3                # "!" shows this long before each hit
 const END_DELAY := 1.6
 const DEBUG_LOSS_PRESETS := [0, 4, 11, 21]
@@ -28,8 +28,7 @@ var boss: Battler
 var _mode: Mode = Mode.NONE
 var _t0 := 0.0
 var _attack_press := -1.0
-var _hit_press: PackedFloat64Array = []
-var _hit_held: Array[bool] = []
+var _defense: DefenseInput
 var _hit_sampled: Array[bool] = []
 var _hit_resolved: Array[bool] = []
 var _flash: Dictionary = {}  # Battler -> seconds left
@@ -127,14 +126,10 @@ func _on_enemy_attack(attack: BossAttack, targets: Array) -> void:
 	_mode = Mode.DEFENSE
 	_t0 = _now()
 	var n := attack.hit_times.size()
-	_hit_press = PackedFloat64Array()
-	_hit_press.resize(n)
-	_hit_press.fill(INF)
-	_hit_held = []
+	_defense = DefenseInput.new(attack.hit_times)
 	_hit_sampled = []
 	_hit_resolved = []
 	for i in n:
-		_hit_held.append(false)
 		_hit_sampled.append(false)
 		_hit_resolved.append(false)
 	_message.text = attack.telegraph_text if attack.telegraph_text != "" else attack.display_name
@@ -230,6 +225,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_float_text(Vector2(160, 24), "DEBUG: Warden losses = %d" % n, Color.ORANGE)
 		get_viewport().set_input_as_handled()
 		return
+	if event.is_action_released("action"):
+		if _mode == Mode.DEFENSE and _defense:
+			_defense.release()
+		return
 	if not event.is_action_pressed("action") or event.is_echo():
 		return
 	var now := _now()
@@ -238,31 +237,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			if _attack_press < 0.0:
 				_attack_press = now
 		Mode.DEFENSE:
-			var i := _nearest_unresolved_hit(now)
-			if i >= 0 and is_inf(_hit_press[i]):
-				_hit_press[i] = now
+			_defense.press(now - _t0)
 		Mode.ENDED:
 			if _victory_wait:
 				_victory_wait = false
 				_change_scene(SAVE_POINT_SCENE)
 	get_viewport().set_input_as_handled()
-
-
-## Each press belongs to the unresolved hit closest in time. Only the first
-## press on a hit counts, so mashing cannot farm perfect parries.
-func _nearest_unresolved_hit(now: float) -> int:
-	if ctrl.pending_attack == null:
-		return -1
-	var best := -1
-	var best_d := INF
-	for i in _hit_resolved.size():
-		if _hit_resolved[i]:
-			continue
-		var d := absf(now - (_t0 + ctrl.pending_attack.hit_times[i]))
-		if d < best_d:
-			best_d = d
-			best = i
-	return best
 
 
 func _process(delta: float) -> void:
@@ -307,7 +287,7 @@ func _process_defense(now: float) -> void:
 		var hit_t := _t0 + attack.hit_times[i]
 		if not _hit_sampled[i] and now >= hit_t:
 			_hit_sampled[i] = true
-			_hit_held[i] = Input.is_action_pressed("action")
+			_defense.sample(i)
 		if not _hit_resolved[i]:
 			if now >= hit_t - CUE_LEAD and now < hit_t:
 				cue = true
@@ -315,8 +295,8 @@ func _process_defense(now: float) -> void:
 				next_hit = minf(next_hit, hit_t)
 			if now >= hit_t + DEFENSE_RESOLVE_AFTER:
 				_hit_resolved[i] = true
-				var d := _hit_press[i] - hit_t if not is_inf(_hit_press[i]) else INF
-				ctrl.resolve_enemy_hit(i, d, _hit_held[i])
+				var r := _defense.result(i)
+				ctrl.resolve_enemy_hit(i, r["delta"], r["held"], r["carried"])
 				return  # the controller may have started a new turn
 	_prompt.cue_visible = cue
 	_prompt.cue_positions.clear()

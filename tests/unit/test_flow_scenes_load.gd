@@ -34,3 +34,21 @@ func test_defeat_lists_assist_options() -> void:
 	root.remove_child(n)
 	n.free()
 	la.debug_set_losses(&"warden", 0)
+
+
+func test_defeat_ignores_input_right_after_opening() -> void:
+	var root: Window = (Engine.get_main_loop() as SceneTree).root
+	var n = load("res://scenes/defeat/defeat.tscn").instantiate()
+	root.add_child(n)
+	assert_false(n.accepts_input(), "mash guard active")
+	root.remove_child(n)
+	n.free()
+
+
+func test_save_point_ignores_input_right_after_opening() -> void:
+	var root: Window = (Engine.get_main_loop() as SceneTree).root
+	var n = load("res://scenes/save_point/save_point.tscn").instantiate()
+	root.add_child(n)
+	assert_false(n.accepts_input(), "mash guard active")
+	root.remove_child(n)
+	n.free()

@@ -58,3 +58,12 @@ func test_counter_only_on_perfect_parry() -> void:
 	assert_true(TimingJudge.grants_counter(D.PERFECT_PARRY))
 	for r in [D.DODGE, D.BLOCK, D.GRAZE, D.MISS]:
 		assert_false(TimingJudge.grants_counter(r))
+
+
+func test_block_carried_hold_blocks() -> void:
+	assert_eq(TimingJudge.judge_defense(S.BLOCK, INF, true, true), D.BLOCK)
+
+
+func test_carried_hold_ignored_for_tap_styles() -> void:
+	assert_eq(TimingJudge.judge_defense(S.PARRY, INF, true, true), D.MISS)
+	assert_eq(TimingJudge.judge_defense(S.DODGE, INF, true, true), D.MISS)

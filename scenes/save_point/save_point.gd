@@ -6,7 +6,19 @@ const BATTLE_SCENE := "res://scenes/battle/battle.tscn"
 var _t := 0.0
 
 
+## Ignore input briefly so a player still mashing from the fight does not pick
+## an option by accident.
+const INPUT_GRACE := 0.5
+
+var _opened_at := 0
+
+
+func accepts_input() -> bool:
+	return Time.get_ticks_msec() - _opened_at >= INPUT_GRACE * 1000.0
+
+
 func _ready() -> void:
+	_opened_at = Time.get_ticks_msec()
 	var t := Theme.new()
 	t.default_font_size = 8
 	theme = t
@@ -18,6 +30,8 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not accepts_input():
+		return
 	if event.is_action_pressed("action") or event.is_action_pressed("ui_accept"):
 		get_viewport().set_input_as_handled()
 		GameState.pending_boss_start_hp = -1

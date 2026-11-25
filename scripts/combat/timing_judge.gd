@@ -32,7 +32,11 @@ static func attack_mult(r: AttackResult) -> float:
 	return Tuning.ATTACK_NORMAL_MULT
 
 
-static func judge_defense(style: BattlerData.DefenseStyle, press_delta: float, held_at_hit: bool) -> DefenseResult:
+## carried_hold: a BLOCK hold that began validly for an earlier hit of the same
+## attack and is still held. Only BLOCK uses it.
+static func judge_defense(style: BattlerData.DefenseStyle, press_delta: float, held_at_hit: bool, carried_hold := false) -> DefenseResult:
+	if style == BattlerData.DefenseStyle.BLOCK and carried_hold and held_at_hit:
+		return DefenseResult.BLOCK
 	if is_inf(press_delta) or press_delta < -Tuning.LOCKOUT - EPS:
 		return DefenseResult.MISS
 	match style:
