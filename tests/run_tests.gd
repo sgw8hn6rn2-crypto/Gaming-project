@@ -4,7 +4,19 @@ extends SceneTree
 const TEST_DIR := "res://tests/unit/"
 
 
-func _initialize() -> void:
+var _ran := false
+
+
+## Tests run on the first frame so the root window is inside the tree and
+## scene tests can add nodes.
+func _process(_delta: float) -> bool:
+	if not _ran:
+		_ran = true
+		_run_all()
+	return false
+
+
+func _run_all() -> void:
 	var errors = load("res://tests/error_counter.gd").new()
 	OS.add_logger(errors)
 	var passed := 0
