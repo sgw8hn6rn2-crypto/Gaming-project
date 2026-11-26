@@ -124,7 +124,8 @@ func _on_phase_changed(p: BattleController.Phase) -> void:
 
 func _on_enemy_attack(attack: BossAttack, targets: Array) -> void:
 	_mode = Mode.DEFENSE
-	_t0 = _now()
+	# Hit times count from the end of the warning blink.
+	_t0 = _now() + Tuning.DEFENSE_WARNING
 	var n := attack.hit_times.size()
 	_defense = DefenseInput.new(attack.hit_times)
 	_hit_sampled = []
@@ -237,7 +238,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			if _attack_press < 0.0:
 				_attack_press = now
 		Mode.DEFENSE:
-			_defense.press(now - _t0)
+			if now >= _t0:  # presses during the warning blink are ignored
+				_defense.press(now - _t0)
 		Mode.ENDED:
 			if _victory_wait:
 				_victory_wait = false

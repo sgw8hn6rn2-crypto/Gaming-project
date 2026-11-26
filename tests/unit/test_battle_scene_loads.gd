@@ -88,3 +88,21 @@ func test_multi_hit_squares_overlap_with_full_lead() -> void:
 	assert_almost(p[0], 1.0 - 0.15 / b.SQUARE_LEAD, 0.05)
 	assert_almost(p[1], 1.0 - 0.45 / b.SQUARE_LEAD, 0.05)
 	_free_scene(b)
+
+
+func test_warning_blink_before_squares() -> void:
+	var a := BossAttack.new()
+	a.hit_times = PackedFloat32Array([0.6])
+	var b = _scene_in_enemy_turn(a)
+	# Right after the attack starts: still in the warning, no squares yet,
+	# even though the first hit's lead (0.6 s) equals its hit time.
+	b._process(0.016)
+	assert_eq(b._prompt.square_progresses.size(), 0, "no squares during warning")
+	assert_true(b._t0 - b._now() > Tuning.DEFENSE_WARNING - 0.1, "hits start after the warning")
+	# A press during the warning is ignored, not counted as an early lockout.
+	var ev := InputEventAction.new()
+	ev.action = "action"
+	ev.pressed = true
+	b._unhandled_input(ev)
+	assert_true(is_inf(b._defense.result(0)["delta"]), "warning press ignored")
+	_free_scene(b)

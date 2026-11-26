@@ -24,6 +24,8 @@ const BLOCK_LATE_GRAZE_WINDOW := 0.15
 const BLOCK_MULT := 0.25
 
 # Shared defense
+## Seconds the targets blink red before the defense squares start closing in.
+const DEFENSE_WARNING := 0.8
 const GRAZE_MULT := 0.5
 const MISS_MULT := 1.0
 const LOCKOUT := 0.40
