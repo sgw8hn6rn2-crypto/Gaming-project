@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BattlerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/battler_data.gd" id="1_yd5t5"]
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="2_33ts4"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="3_6s5ts"]
+
+[resource]
+script = ExtResource("1_yd5t5")
+id = &"kael"
+display_name = "Kael"
+max_hp = 140
+atk = 18
+def = 14
+speed = 9
+skills = Array[ExtResource("2_33ts4")]([ExtResource("3_6s5ts")])
+color = Color(0.2901961, 0.48235294, 0.81960785, 1)

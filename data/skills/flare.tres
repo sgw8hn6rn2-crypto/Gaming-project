@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="1_gb2cy"]
+
+[resource]
+script = ExtResource("1_gb2cy")
+id = &"flare"
+display_name = "Flare"
+sp_cost = 3
+power = 2.0
+timed = true

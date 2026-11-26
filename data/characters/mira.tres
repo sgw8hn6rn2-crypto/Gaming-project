@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BattlerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/battler_data.gd" id="1_yjxfq"]
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="2_u24sr"]
+[ext_resource type="Resource" path="res://data/skills/mend.tres" id="3_ejsdt"]
+[ext_resource type="Resource" path="res://data/skills/revive_light.tres" id="4_oud6q"]
+
+[resource]
+script = ExtResource("1_yjxfq")
+id = &"mira"
+display_name = "Mira"
+max_hp = 95
+atk = 16
+def = 8
+speed = 12
+skills = Array[ExtResource("2_u24sr")]([ExtResource("3_ejsdt"), ExtResource("4_oud6q")])
+color = Color(0.8862745, 0.7529412, 0.26666668, 1)

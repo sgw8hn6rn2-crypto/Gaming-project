@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BattlerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/battler_data.gd" id="1_5t1si"]
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="2_ihw2u"]
+[ext_resource type="Resource" path="res://data/skills/rally.tres" id="3_xyuwv"]
+
+[resource]
+script = ExtResource("1_5t1si")
+id = &"oda"
+display_name = "Oda"
+max_hp = 130
+atk = 19
+def = 13
+speed = 8
+skills = Array[ExtResource("2_ihw2u")]([ExtResource("3_xyuwv")])
+color = Color(0.5411765, 0.41960785, 0.81960785, 1)

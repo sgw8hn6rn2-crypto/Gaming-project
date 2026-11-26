@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BattlerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/battler_data.gd" id="1_51txs"]
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="2_7tuck"]
+[ext_resource type="Resource" path="res://data/skills/twin_cut.tres" id="3_0h7dy"]
+
+[resource]
+script = ExtResource("1_51txs")
+id = &"ren"
+display_name = "Ren"
+atk = 22
+def = 9
+speed = 14
+skills = Array[ExtResource("2_7tuck")]([ExtResource("3_0h7dy")])
+color = Color(0.24705882, 0.7019608, 0.41960785, 1)

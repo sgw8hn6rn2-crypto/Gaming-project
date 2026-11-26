@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BattlerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/battler_data.gd" id="1_fpuac"]
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="2_yoapn"]
+
+[resource]
+script = ExtResource("1_fpuac")
+id = &"warden"
+display_name = "The Warden"
+max_hp = 600
+atk = 26
+def = 10
+speed = 11
+color = Color(0.41960785, 0.41960785, 0.47843137, 1)
