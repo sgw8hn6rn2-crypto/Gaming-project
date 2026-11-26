@@ -25,7 +25,7 @@ Build plan: `docs/superpowers/plans/2026-11-25-combat-slice.md`
 
 - **Your turn:** choose Attack, Skill, Item or Swap. On attacks, a ring closes on the boss. Press when it closes for bonus damage. Missing still deals normal damage.
 - **Swap:** one free swap per turn with a bench character. It doesn't use up your turn.
-- **Boss turn:** the targeted character flashes red and a **!** appears just before each hit. Each character defends differently:
+- **Boss turn:** the targeted character flashes red and a square closes in on them. It lands exactly when the hit lands. Each character defends differently:
   - **Parry** (Mira, Tess): tap exactly on the hit. A perfect parry takes no damage and counterattacks.
   - **Dodge** (Ren, Vey): tap on the hit. A dodge takes no damage, and the timing is a little more forgiving.
   - **Block** (Kael, Oda): press just before the hit and hold. A block takes a quarter of the damage, and it's the easiest to time.
