@@ -30,6 +30,7 @@ Build plan: `docs/superpowers/plans/2026-11-25-combat-slice.md`
   - **Dodge** (Ren, Vey): tap on the hit. A dodge takes no damage, and the timing is a little more forgiving.
   - **Block** (Kael, Oda): press just before the hit and hold. A block takes a quarter of the damage, and it's the easiest to time.
   - Pressing too early locks you out of that hit, so mashing doesn't work.
+  - **Whole-party attacks** (Shockwave): everyone taps on the hit and gets the same result. Within 0.05 s is PARRY! with one team counter, within 0.10 s is DODGE, and within 0.20 s is GRAZE.
 - **Bench** characters slowly recover HP. You lose only when all six are down.
 - **After losing**, more retry options unlock: instant retry after 3 losses, the boss keeps its damage after 10, and the boss starts at 1 HP after 20. Returning to the save point is always an option.
 

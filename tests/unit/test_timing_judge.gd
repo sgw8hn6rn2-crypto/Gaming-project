@@ -67,3 +67,12 @@ func test_block_carried_hold_blocks() -> void:
 func test_carried_hold_ignored_for_tap_styles() -> void:
 	assert_eq(TimingJudge.judge_defense(S.PARRY, INF, true, true), D.MISS)
 	assert_eq(TimingJudge.judge_defense(S.DODGE, INF, true, true), D.MISS)
+
+
+func test_party_wide_tiers() -> void:
+	assert_eq(TimingJudge.judge_party_wide(0.04), D.PERFECT_PARRY)
+	assert_eq(TimingJudge.judge_party_wide(-0.08), D.DODGE)
+	assert_eq(TimingJudge.judge_party_wide(0.18), D.GRAZE)
+	assert_eq(TimingJudge.judge_party_wide(0.3), D.MISS)
+	assert_eq(TimingJudge.judge_party_wide(-0.5), D.MISS)
+	assert_eq(TimingJudge.judge_party_wide(INF), D.MISS)

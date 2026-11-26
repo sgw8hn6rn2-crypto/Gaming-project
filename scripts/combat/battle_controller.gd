@@ -152,19 +152,26 @@ func resolve_enemy_hit(hit_index: int, press_delta: float, held_at_hit: bool, ca
 	if _resolved_hits.has(hit_index):
 		return
 	_resolved_hits[hit_index] = true
+	# Party-wide attacks get one shared result for everyone and at most one
+	# team counter. Single-target attacks use the target's own defense style.
+	var shared := pending_attack.party_wide
+	var shared_r := TimingJudge.judge_party_wide(press_delta)
+	var countered := false
 	for t in pending_targets:
 		var target: Battler = t
 		if target.is_ko():
 			continue
-		var r := TimingJudge.judge_defense(target.data.defense_style, press_delta, held_at_hit, carried_hold)
+		var r := shared_r if shared else TimingJudge.judge_defense(target.data.defense_style, press_delta, held_at_hit, carried_hold)
 		var dmg := DamageCalc.damage(boss.data.atk, pending_attack.power, TimingJudge.defense_mult(r), target.data.def)
 		target.take_damage(dmg)
 		damage_dealt.emit(target, dmg, DEFENSE_LABELS[r])
 		if TimingJudge.grants_counter(r):
 			target.add_sp(Tuning.SP_PER_PERFECT_PARRY)
-			var c := DamageCalc.counter_damage(target.data.atk, boss.data.def)
-			boss.take_damage(c)
-			damage_dealt.emit(boss, c, "COUNTER")
+			if not countered:
+				countered = true
+				var c := DamageCalc.counter_damage(target.data.atk, boss.data.def)
+				boss.take_damage(c)
+				damage_dealt.emit(boss, c, "COUNTER")
 	_after_damage()
 	if is_over():
 		return

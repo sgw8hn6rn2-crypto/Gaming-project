@@ -262,3 +262,35 @@ func test_bench_recovers_after_party_turn() -> void:
 	c.choose_attack()
 	c.resolve_player_timing(INF)
 	assert_eq(p.bench[0].hp, 55)
+
+
+func _party_wide_labels(delta: float) -> Dictionary:
+	var p := _party(1, [S.PARRY, S.DODGE, S.BLOCK, S.PARRY])
+	var c := _ctrl(p, _boss(50), [_attack(true)])
+	var labels: Array = []
+	var counters := [0]
+	c.damage_dealt.connect(func(t: Battler, _amt: int, label: String) -> void:
+		if t == c.boss:
+			counters[0] += 1
+		else:
+			labels.append(label))
+	c.resolve_enemy_hit(0, delta, false)
+	return { "labels": labels, "counters": counters[0], "party": p }
+
+
+func test_party_wide_same_result_for_mixed_styles() -> void:
+	var r := _party_wide_labels(0.08)
+	assert_eq(r["labels"], ["DODGE", "DODGE", "DODGE", "DODGE"])
+	for t in r["party"].active:
+		assert_eq(t.hp, 100)
+
+
+func test_party_wide_perfect_is_parry_with_one_counter() -> void:
+	var r := _party_wide_labels(0.0)
+	assert_eq(r["labels"], ["PARRY!", "PARRY!", "PARRY!", "PARRY!"])
+	assert_eq(r["counters"], 1)
+
+
+func test_party_wide_graze_half_damage_for_all() -> void:
+	var r := _party_wide_labels(0.18)
+	assert_eq(r["labels"], ["GRAZE", "GRAZE", "GRAZE", "GRAZE"])

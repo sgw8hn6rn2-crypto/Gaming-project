@@ -134,10 +134,13 @@ func _on_enemy_attack(attack: BossAttack, targets: Array) -> void:
 		_hit_sampled.append(false)
 		_hit_resolved.append(false)
 	_message.text = attack.telegraph_text if attack.telegraph_text != "" else attack.display_name
-	var styles := {}
-	for t in targets:
-		styles[(t as Battler).data.defense_style] = true
-	_hint.text = _defense_hint(styles.keys())
+	if attack.party_wide:
+		_hint.text = "WHOLE PARTY: everyone taps on hit"
+	else:
+		var styles := {}
+		for t in targets:
+			styles[(t as Battler).data.defense_style] = true
+		_hint.text = _defense_hint(styles.keys())
 	_refresh()
 
 

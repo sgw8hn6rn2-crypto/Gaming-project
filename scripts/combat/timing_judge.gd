@@ -58,6 +58,20 @@ static func judge_defense(style: BattlerData.DefenseStyle, press_delta: float, h
 	return DefenseResult.MISS
 
 
+## Party-wide attacks: one shared judgment so every target gets the same
+## result. Tighter timing gives a better tier: parry, then dodge, then graze.
+static func judge_party_wide(press_delta: float) -> DefenseResult:
+	if is_inf(press_delta) or press_delta < -Tuning.LOCKOUT - EPS:
+		return DefenseResult.MISS
+	if _within(press_delta, Tuning.PARRY_PERFECT_WINDOW):
+		return DefenseResult.PERFECT_PARRY
+	if _within(press_delta, Tuning.DODGE_WINDOW):
+		return DefenseResult.DODGE
+	if _within(press_delta, Tuning.DODGE_GRAZE_WINDOW):
+		return DefenseResult.GRAZE
+	return DefenseResult.MISS
+
+
 static func defense_mult(r: DefenseResult) -> float:
 	match r:
 		DefenseResult.PERFECT_PARRY, DefenseResult.DODGE:
