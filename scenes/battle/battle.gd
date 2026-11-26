@@ -8,7 +8,7 @@ const BOSS_ID := &"warden"
 const ATTACK_IMPACT := 0.5           # seconds from prompt start to impact
 const ATTACK_LATE_LIMIT := 0.4       # no press by impact + this = no press
 const DEFENSE_RESOLVE_AFTER := DefenseInput.RESOLVE_AFTER  # judge each hit this long after it lands
-const CUE_LEAD := 0.3                # "!" shows this long before each hit
+const SQUARE_LEAD := 0.6             # the defense square starts closing this long before each hit
 const END_DELAY := 1.6
 const DEBUG_LOSS_PRESETS := [0, 4, 11, 21]
 const SAVE_POINT_SCENE := "res://scenes/save_point/save_point.tscn"
@@ -171,7 +171,7 @@ func _on_battle_ended(victory: bool) -> void:
 	_mode = Mode.ENDED
 	_menu.close()
 	_prompt.ring_progress = -1.0
-	_prompt.cue_visible = false
+	_prompt.square_progress = -1.0
 	_hint.text = ""
 	if victory:
 		GameState.loss_assist.record_victory(BOSS_ID)
@@ -258,7 +258,7 @@ func _process(delta: float) -> void:
 			_process_defense(now)
 		_:
 			_prompt.ring_progress = -1.0
-			_prompt.cue_visible = false
+			_prompt.square_progress = -1.0
 			_boss_offset = Vector2.ZERO
 	queue_redraw()
 
@@ -281,7 +281,6 @@ func _process_defense(now: float) -> void:
 	var attack := ctrl.pending_attack
 	if attack == null:
 		return
-	var cue := false
 	var next_hit := INF
 	for i in attack.hit_times.size():
 		var hit_t := _t0 + attack.hit_times[i]
@@ -289,8 +288,6 @@ func _process_defense(now: float) -> void:
 			_hit_sampled[i] = true
 			_defense.sample(i)
 		if not _hit_resolved[i]:
-			if now >= hit_t - CUE_LEAD and now < hit_t:
-				cue = true
 			if hit_t > now:
 				next_hit = minf(next_hit, hit_t)
 			if now >= hit_t + DEFENSE_RESOLVE_AFTER:
@@ -298,10 +295,15 @@ func _process_defense(now: float) -> void:
 				var r := _defense.result(i)
 				ctrl.resolve_enemy_hit(i, r["delta"], r["held"], r["carried"])
 				return  # the controller may have started a new turn
-	_prompt.cue_visible = cue
-	_prompt.cue_positions.clear()
+	# Square closes on each target and lands exactly on the next hit.
+	_prompt.square_progress = -1.0
+	if not is_inf(next_hit) and next_hit - now <= SQUARE_LEAD:
+		_prompt.square_progress = 1.0 - (next_hit - now) / SQUARE_LEAD
+	_prompt.square_centers.clear()
 	for t in ctrl.pending_targets:
-		_prompt.cue_positions.append(_anchor_for(t) + Vector2(0, -6))
+		var i := party.active.find(t)
+		if i >= 0 and not (t as Battler).is_ko():
+			_prompt.square_centers.append(_slot_rect(i).get_center())
 	# Wind-up: lean back as the next hit approaches, then lunge.
 	if is_inf(next_hit):
 		_boss_offset = Vector2(10, 0)

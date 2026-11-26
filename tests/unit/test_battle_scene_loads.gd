@@ -38,3 +38,26 @@ func test_enemy_turn_frame_runs_without_errors() -> void:
 	assert_true(b._mode == b.Mode.DEFENSE)
 	root.remove_child(b)
 	b.free()
+
+
+func test_defense_square_closes_on_hit() -> void:
+	var root: Window = (Engine.get_main_loop() as SceneTree).root
+	var b = load("res://scenes/battle/battle.tscn").instantiate()
+	root.add_child(b)
+	var guard := 0
+	while b.ctrl.phase != BattleController.Phase.ENEMY_DEFENSE and guard < 20:
+		guard += 1
+		b.ctrl.choose_attack()
+		b.ctrl.resolve_player_timing(INF)
+	var first_hit: float = b.ctrl.pending_attack.hit_times[0]
+	# Halfway through the square's approach to the first hit.
+	b._t0 = b._now() - (first_hit - b.SQUARE_LEAD * 0.5)
+	b._process(0.016)
+	assert_almost(b._prompt.square_progress, 0.5, 0.05)
+	assert_eq(b._prompt.square_centers.size(), b.ctrl.pending_targets.size())
+	# Before the approach starts, no square.
+	b._t0 = b._now() - (first_hit - b.SQUARE_LEAD - 0.2)
+	b._process(0.016)
+	assert_true(b._prompt.square_progress < 0.0, "hidden before lead")
+	root.remove_child(b)
+	b.free()
