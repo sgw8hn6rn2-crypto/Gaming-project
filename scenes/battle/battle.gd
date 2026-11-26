@@ -171,7 +171,7 @@ func _on_battle_ended(victory: bool) -> void:
 	_mode = Mode.ENDED
 	_menu.close()
 	_prompt.ring_progress = -1.0
-	_prompt.square_progress = -1.0
+	_prompt.square_progresses.clear()
 	_hint.text = ""
 	if victory:
 		GameState.loss_assist.record_victory(BOSS_ID)
@@ -258,7 +258,7 @@ func _process(delta: float) -> void:
 			_process_defense(now)
 		_:
 			_prompt.ring_progress = -1.0
-			_prompt.square_progress = -1.0
+			_prompt.square_progresses.clear()
 			_boss_offset = Vector2.ZERO
 	queue_redraw()
 
@@ -295,10 +295,13 @@ func _process_defense(now: float) -> void:
 				var r := _defense.result(i)
 				ctrl.resolve_enemy_hit(i, r["delta"], r["held"], r["carried"])
 				return  # the controller may have started a new turn
-	# Square closes on each target and lands exactly on the next hit.
-	_prompt.square_progress = -1.0
-	if not is_inf(next_hit) and next_hit - now <= SQUARE_LEAD:
-		_prompt.square_progress = 1.0 - (next_hit - now) / SQUARE_LEAD
+	# Every upcoming hit gets its own square with the full lead time, so on
+	# multi-hit attacks the next square is already closing in.
+	_prompt.square_progresses.clear()
+	for i in attack.hit_times.size():
+		var until := _t0 + attack.hit_times[i] - now
+		if until >= 0.0 and until <= SQUARE_LEAD:
+			_prompt.square_progresses.append(1.0 - until / SQUARE_LEAD)
 	_prompt.square_centers.clear()
 	for t in ctrl.pending_targets:
 		var i := party.active.find(t)
