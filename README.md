@@ -16,7 +16,9 @@ Build plan: `docs/superpowers/plans/2026-11-25-combat-slice.md`
 
 | Action | Keyboard | Gamepad |
 |---|---|---|
-| Confirm, timed attack, parry, dodge, block | Z or Space | A |
+| Confirm, timed attack, **parry** | Z or Space | A |
+| **Dodge** (boss turn) | X | B |
+| **Block** (boss turn, hold) | C or Shift | X |
 | Back | X or Esc | B |
 | Move in menus | Arrow keys | D-pad |
 | Debug: set Warden loss count (0, 4, 11, 21) | F9 | |
@@ -25,12 +27,12 @@ Build plan: `docs/superpowers/plans/2026-11-25-combat-slice.md`
 
 - **Your turn:** choose Attack, Skill, Item or Swap. On attacks, a ring closes on the boss. Press when it closes for bonus damage. Missing still deals normal damage.
 - **Swap:** one free swap per turn with a bench character. It doesn't use up your turn.
-- **Boss turn:** the targeted character flashes red and a square closes in on them. It lands exactly when the hit lands. Each character defends differently:
-  - **Parry** (Mira, Tess): tap exactly on the hit. A perfect parry takes no damage and counterattacks.
-  - **Dodge** (Ren, Vey): tap on the hit. A dodge takes no damage, and the timing is a little more forgiving.
-  - **Block** (Kael, Oda): press just before the hit and hold. A block takes a quarter of the damage, and it's the easiest to time.
+- **Boss turn:** the targeted character blinks red, then a square closes in on them. It lands exactly when the hit lands. Every character can defend three ways. The button you press decides which:
+  - **Parry** (Z): tap exactly on the hit. Hardest timing. A perfect parry takes no damage and counterattacks.
+  - **Dodge** (X): tap on the hit. A wider window. No damage, no counter.
+  - **Block** (hold C): press just before the hit and hold. Easiest. You take a quarter of the damage, and the hold carries through multi-hit attacks.
   - Pressing too early locks you out of that hit, so mashing doesn't work.
-  - **Whole-party attacks** (Shockwave): everyone taps on the hit and gets the same result. Within 0.05 s is PARRY! with one team counter, within 0.10 s is DODGE, and within 0.20 s is GRAZE.
+  - On whole-party attacks, your one press applies to everyone. There's at most one counterattack.
 - **Bench** characters slowly recover HP. You lose only when all six are down.
 - **After losing**, more retry options unlock: instant retry after 3 losses, the boss keeps its damage after 10, and the boss starts at 1 HP after 20. Returning to the save point is always an option.
 

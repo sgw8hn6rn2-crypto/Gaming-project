@@ -1,16 +1,16 @@
 extends TestCase
 
-const S := BattlerData.DefenseStyle
+const S := TimingJudge.Move
 const D := TimingJudge.DefenseResult
 const FLURRY := [0.6, 0.9, 1.2]
 
 
-func _run(presses: Array, releases: Array, style: int) -> Array:
+func _run(presses: Array, releases: Array, style: int, moves: Array = []) -> Array:
 	# Feeds press/release events and hit samples in time order, returns results per hit.
 	var di := DefenseInput.new(PackedFloat32Array(FLURRY))
 	var events: Array = []
-	for t in presses:
-		events.append([t, "press"])
+	for k in presses.size():
+		events.append([presses[k], "press", moves[k] if k < moves.size() else style])
 	for t in releases:
 		events.append([t, "release"])
 	for i in FLURRY.size():
@@ -19,7 +19,7 @@ func _run(presses: Array, releases: Array, style: int) -> Array:
 	for e in events:
 		match e[1]:
 			"press":
-				di.press(e[0])
+				di.press(e[0], e[2])
 			"release":
 				di.release()
 			"sample":
@@ -27,7 +27,7 @@ func _run(presses: Array, releases: Array, style: int) -> Array:
 	var out: Array = []
 	for i in FLURRY.size():
 		var r: Dictionary = di.result(i)
-		out.append(TimingJudge.judge_defense(style, r["delta"], r["held"], r["carried"]))
+		out.append(TimingJudge.judge_defense(r["move"], r["delta"], r["held"], r["carried"]))
 	return out
 
 
@@ -59,3 +59,7 @@ func test_release_breaks_carry() -> void:
 
 func test_no_input_all_miss() -> void:
 	assert_eq(_run([], [], S.PARRY), [D.MISS, D.MISS, D.MISS])
+
+
+func test_different_move_per_hit() -> void:
+	assert_eq(_run([0.6, 0.9, 1.1], [0.65, 0.95, 1.3], S.PARRY, [S.PARRY, S.DODGE, S.BLOCK]), [D.PERFECT_PARRY, D.DODGE, D.BLOCK])

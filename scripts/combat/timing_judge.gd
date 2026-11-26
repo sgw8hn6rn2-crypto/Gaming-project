@@ -5,6 +5,8 @@ extends RefCounted
 
 enum AttackResult { PERFECT, GOOD, NORMAL }
 enum DefenseResult { PERFECT_PARRY, DODGE, BLOCK, GRAZE, MISS }
+## The defense the player chose by which button they pressed.
+enum Move { PARRY, DODGE, BLOCK }
 
 const EPS := 0.000001
 
@@ -34,41 +36,27 @@ static func attack_mult(r: AttackResult) -> float:
 
 ## carried_hold: a BLOCK hold that began validly for an earlier hit of the same
 ## attack and is still held. Only BLOCK uses it.
-static func judge_defense(style: BattlerData.DefenseStyle, press_delta: float, held_at_hit: bool, carried_hold := false) -> DefenseResult:
-	if style == BattlerData.DefenseStyle.BLOCK and carried_hold and held_at_hit:
+static func judge_defense(move: Move, press_delta: float, held_at_hit: bool, carried_hold := false) -> DefenseResult:
+	if move == Move.BLOCK and carried_hold and held_at_hit:
 		return DefenseResult.BLOCK
 	if is_inf(press_delta) or press_delta < -Tuning.LOCKOUT - EPS:
 		return DefenseResult.MISS
-	match style:
-		BattlerData.DefenseStyle.PARRY:
+	match move:
+		Move.PARRY:
 			if _within(press_delta, Tuning.PARRY_PERFECT_WINDOW):
 				return DefenseResult.PERFECT_PARRY
 			if _within(press_delta, Tuning.PARRY_GRAZE_WINDOW):
 				return DefenseResult.GRAZE
-		BattlerData.DefenseStyle.DODGE:
+		Move.DODGE:
 			if _within(press_delta, Tuning.DODGE_WINDOW):
 				return DefenseResult.DODGE
 			if _within(press_delta, Tuning.DODGE_GRAZE_WINDOW):
 				return DefenseResult.GRAZE
-		BattlerData.DefenseStyle.BLOCK:
+		Move.BLOCK:
 			if press_delta <= EPS and press_delta >= -Tuning.BLOCK_EARLY_WINDOW - EPS:
 				return DefenseResult.BLOCK if held_at_hit else DefenseResult.MISS
 			if press_delta > 0.0 and press_delta <= Tuning.BLOCK_LATE_GRAZE_WINDOW + EPS:
 				return DefenseResult.GRAZE
-	return DefenseResult.MISS
-
-
-## Party-wide attacks: one shared judgment so every target gets the same
-## result. Tighter timing gives a better tier: parry, then dodge, then graze.
-static func judge_party_wide(press_delta: float) -> DefenseResult:
-	if is_inf(press_delta) or press_delta < -Tuning.LOCKOUT - EPS:
-		return DefenseResult.MISS
-	if _within(press_delta, Tuning.PARRY_PERFECT_WINDOW):
-		return DefenseResult.PERFECT_PARRY
-	if _within(press_delta, Tuning.DODGE_WINDOW):
-		return DefenseResult.DODGE
-	if _within(press_delta, Tuning.DODGE_GRAZE_WINDOW):
-		return DefenseResult.GRAZE
 	return DefenseResult.MISS
 
 

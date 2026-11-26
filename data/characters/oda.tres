@@ -12,6 +12,5 @@ max_hp = 130
 atk = 19
 def = 13
 speed = 8
-defense_style = 2
 skills = Array[ExtResource("2_ihw2u")]([ExtResource("3_xyuwv")])
 color = Color(0.5411765, 0.41960785, 0.81960785, 1)

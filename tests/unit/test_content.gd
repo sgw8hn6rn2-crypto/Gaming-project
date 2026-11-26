@@ -10,18 +10,8 @@ func test_six_characters_load() -> void:
 		if d == null:
 			continue
 		assert_eq(d.id, StringName(id))
-		assert_true(d.defense_style in [0, 1, 2], id)
 		assert_true(d.skills.size() >= 1, "%s has a skill" % id)
 		assert_true(d.max_hp > 0)
-
-
-func test_each_style_used() -> void:
-	var styles := {}
-	for id in CHARS:
-		var d: BattlerData = load("res://data/characters/%s.tres" % id)
-		if d:
-			styles[d.defense_style] = true
-	assert_eq(styles.size(), 3)
 
 
 func test_warden_loads() -> void:

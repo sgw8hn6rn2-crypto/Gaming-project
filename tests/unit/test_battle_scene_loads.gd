@@ -106,3 +106,16 @@ func test_warning_blink_before_squares() -> void:
 	b._unhandled_input(ev)
 	assert_true(is_inf(b._defense.result(0)["delta"]), "warning press ignored")
 	_free_scene(b)
+
+
+func test_dodge_button_records_dodge() -> void:
+	var a := BossAttack.new()
+	a.hit_times = PackedFloat32Array([0.6])
+	var b = _scene_in_enemy_turn(a)
+	b._t0 = b._now() - 0.6  # warning over, hit is now
+	var ev := InputEventAction.new()
+	ev.action = "dodge"
+	ev.pressed = true
+	b._unhandled_input(ev)
+	assert_eq(b._defense.result(0)["move"], TimingJudge.Move.DODGE)
+	_free_scene(b)

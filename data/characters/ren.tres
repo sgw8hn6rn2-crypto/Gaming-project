@@ -11,6 +11,5 @@ display_name = "Ren"
 atk = 22
 def = 9
 speed = 14
-defense_style = 1
 skills = Array[ExtResource("2_7tuck")]([ExtResource("3_0h7dy")])
 color = Color(0.24705882, 0.7019608, 0.41960785, 1)

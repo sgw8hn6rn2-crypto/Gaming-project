@@ -144,7 +144,8 @@ func resolve_player_timing(press_delta: float) -> void:
 
 # --- Enemy side ------------------------------------------------------------
 
-func resolve_enemy_hit(hit_index: int, press_delta: float, held_at_hit: bool, carried_hold := false) -> void:
+## One judgment from the player's move and timing applies to every target.
+func resolve_enemy_hit(hit_index: int, move: TimingJudge.Move, press_delta: float, held_at_hit: bool, carried_hold := false) -> void:
 	if phase != Phase.ENEMY_DEFENSE or pending_attack == null:
 		return
 	if hit_index < 0 or hit_index >= pending_attack.hit_times.size():
@@ -152,16 +153,12 @@ func resolve_enemy_hit(hit_index: int, press_delta: float, held_at_hit: bool, ca
 	if _resolved_hits.has(hit_index):
 		return
 	_resolved_hits[hit_index] = true
-	# Party-wide attacks get one shared result for everyone and at most one
-	# team counter. Single-target attacks use the target's own defense style.
-	var shared := pending_attack.party_wide
-	var shared_r := TimingJudge.judge_party_wide(press_delta)
-	var countered := false
+	var r := TimingJudge.judge_defense(move, press_delta, held_at_hit, carried_hold)
+	var countered := false  # at most one counter, even on party-wide attacks
 	for t in pending_targets:
 		var target: Battler = t
 		if target.is_ko():
 			continue
-		var r := shared_r if shared else TimingJudge.judge_defense(target.data.defense_style, press_delta, held_at_hit, carried_hold)
 		var dmg := DamageCalc.damage(boss.data.atk, pending_attack.power, TimingJudge.defense_mult(r), target.data.def)
 		target.take_damage(dmg)
 		damage_dealt.emit(target, dmg, DEFENSE_LABELS[r])

@@ -1,10 +1,10 @@
 extends TestCase
 
 const P := BattleController.Phase
-const S := BattlerData.DefenseStyle
+const M := TimingJudge.Move
 
 
-func _member(i: int, speed: int, style := S.PARRY) -> Battler:
+func _member(i: int, speed: int) -> Battler:
 	var d := BattlerData.new()
 	d.id = StringName("m%d" % i)
 	d.display_name = "M%d" % i
@@ -12,7 +12,6 @@ func _member(i: int, speed: int, style := S.PARRY) -> Battler:
 	d.atk = 20
 	d.def = 10
 	d.speed = speed
-	d.defense_style = style
 	var sk := SkillData.new()
 	sk.id = &"big"
 	sk.sp_cost = 2
@@ -24,11 +23,10 @@ func _member(i: int, speed: int, style := S.PARRY) -> Battler:
 	return Battler.new(d)
 
 
-func _party(first_speed := 30, styles: Array = []) -> Party:
+func _party(first_speed := 30) -> Party:
 	var m: Array[Battler] = []
 	for i in 6:
-		var style: int = styles[i] if i < styles.size() else S.PARRY
-		m.append(_member(i, first_speed if i == 0 else 10, style))
+		m.append(_member(i, first_speed if i == 0 else 10))
 	return Party.new(m)
 
 
@@ -139,12 +137,12 @@ func test_cannot_swap_out_current_actor() -> void:
 
 
 func test_block_carried_hold_through_controller() -> void:
-	var p := _party(1, [S.BLOCK, S.BLOCK, S.BLOCK, S.BLOCK])
+	var p := _party(1)
 	var c := _ctrl(p, _boss(50), [_attack(false, 2)])
 	var target: Battler = c.pending_targets[0]
-	c.resolve_enemy_hit(0, -0.15, true)
+	c.resolve_enemy_hit(0, M.BLOCK, -0.15, true)
 	var after_one := target.hp
-	c.resolve_enemy_hit(1, INF, true, true)
+	c.resolve_enemy_hit(1, M.BLOCK, INF, true, true)
 	assert_eq(100 - after_one, DamageCalc.damage(30, 1.0, Tuning.BLOCK_MULT, 10))
 	assert_eq(after_one - target.hp, DamageCalc.damage(30, 1.0, Tuning.BLOCK_MULT, 10))
 
@@ -155,7 +153,7 @@ func test_perfect_parry_no_damage_and_counter() -> void:
 	var c := _ctrl(p, b, [_attack()])
 	assert_eq(c.phase, P.ENEMY_DEFENSE)
 	var target: Battler = c.pending_targets[0]
-	c.resolve_enemy_hit(0, 0.0, false)
+	c.resolve_enemy_hit(0, M.PARRY, 0.0, false)
 	assert_eq(target.hp, 100)
 	assert_eq(b.hp, 600 - DamageCalc.counter_damage(20, 10))
 	assert_eq(target.sp, 1)
@@ -166,15 +164,15 @@ func test_miss_defense_full_damage() -> void:
 	var b := _boss(50)
 	var c := _ctrl(p, b, [_attack()])
 	var target: Battler = c.pending_targets[0]
-	c.resolve_enemy_hit(0, INF, false)
+	c.resolve_enemy_hit(0, M.PARRY, INF, false)
 	assert_eq(target.hp, 100 - DamageCalc.damage(30, 1.0, 1.0, 10))
 
 
 func test_party_wide_one_input_all_targets() -> void:
-	var p := _party(1, [S.PARRY, S.DODGE, S.PARRY, S.DODGE])
+	var p := _party(1)
 	var c := _ctrl(p, _boss(50), [_attack(true)])
 	assert_eq(c.pending_targets.size(), 4)
-	c.resolve_enemy_hit(0, 0.0, false)
+	c.resolve_enemy_hit(0, M.DODGE, 0.0, false)
 	for t in p.active:
 		assert_eq(t.hp, 100)
 
@@ -183,9 +181,9 @@ func test_multi_hit_each_hit_judged_once() -> void:
 	var p := _party(1)
 	var c := _ctrl(p, _boss(50), [_attack(false, 3, 0.5)])
 	var target: Battler = c.pending_targets[0]
-	c.resolve_enemy_hit(0, INF, false)
+	c.resolve_enemy_hit(0, M.PARRY, INF, false)
 	var after_one := target.hp
-	c.resolve_enemy_hit(0, INF, false)
+	c.resolve_enemy_hit(0, M.PARRY, INF, false)
 	assert_eq(target.hp, after_one)
 	assert_eq(c.phase, P.ENEMY_DEFENSE, "still waiting for hits 1 and 2")
 	assert_eq(after_one, 100 - DamageCalc.damage(30, 0.5, 1.0, 10))
@@ -195,8 +193,8 @@ func test_turn_ends_after_last_hit() -> void:
 	var p := _party(1)
 	var c := _ctrl(p, _boss(12), [_attack(false, 2)])
 	assert_eq(c.phase, P.ENEMY_DEFENSE)
-	c.resolve_enemy_hit(0, INF, false)
-	c.resolve_enemy_hit(1, INF, false)
+	c.resolve_enemy_hit(0, M.PARRY, INF, false)
+	c.resolve_enemy_hit(1, M.PARRY, INF, false)
 	assert_eq(c.phase, P.PLAYER_CHOOSE)
 
 
@@ -233,7 +231,7 @@ func test_victory_when_boss_zero() -> void:
 func test_defeat_only_when_all_six_down() -> void:
 	var p := _party(1)
 	var c := _ctrl(p, _boss(50, 1000), [_attack(true)])
-	c.resolve_enemy_hit(0, INF, false)
+	c.resolve_enemy_hit(0, M.PARRY, INF, false)
 	assert_true(c.phase != P.DEFEAT, "bench still alive")
 	assert_eq(p.living_active().size(), 2)
 	var guard := 0
@@ -241,7 +239,7 @@ func test_defeat_only_when_all_six_down() -> void:
 		guard += 1
 		if c.phase == P.ENEMY_DEFENSE:
 			for i in c.pending_attack.hit_times.size():
-				c.resolve_enemy_hit(i, INF, false)
+				c.resolve_enemy_hit(i, M.PARRY, INF, false)
 		elif c.phase == P.PLAYER_CHOOSE:
 			c.choose_attack()
 			c.resolve_player_timing(INF)
@@ -264,8 +262,8 @@ func test_bench_recovers_after_party_turn() -> void:
 	assert_eq(p.bench[0].hp, 55)
 
 
-func _party_wide_labels(delta: float) -> Dictionary:
-	var p := _party(1, [S.PARRY, S.DODGE, S.BLOCK, S.PARRY])
+func _party_wide_labels(move: int, delta: float) -> Dictionary:
+	var p := _party(1)
 	var c := _ctrl(p, _boss(50), [_attack(true)])
 	var labels: Array = []
 	var counters := [0]
@@ -274,23 +272,23 @@ func _party_wide_labels(delta: float) -> Dictionary:
 			counters[0] += 1
 		else:
 			labels.append(label))
-	c.resolve_enemy_hit(0, delta, false)
+	c.resolve_enemy_hit(0, move, delta, false)
 	return { "labels": labels, "counters": counters[0], "party": p }
 
 
 func test_party_wide_same_result_for_mixed_styles() -> void:
-	var r := _party_wide_labels(0.08)
+	var r := _party_wide_labels(M.DODGE, 0.08)
 	assert_eq(r["labels"], ["DODGE", "DODGE", "DODGE", "DODGE"])
 	for t in r["party"].active:
 		assert_eq(t.hp, 100)
 
 
 func test_party_wide_perfect_is_parry_with_one_counter() -> void:
-	var r := _party_wide_labels(0.0)
+	var r := _party_wide_labels(M.PARRY, 0.0)
 	assert_eq(r["labels"], ["PARRY!", "PARRY!", "PARRY!", "PARRY!"])
 	assert_eq(r["counters"], 1)
 
 
 func test_party_wide_graze_half_damage_for_all() -> void:
-	var r := _party_wide_labels(0.18)
+	var r := _party_wide_labels(M.PARRY, 0.12)
 	assert_eq(r["labels"], ["GRAZE", "GRAZE", "GRAZE", "GRAZE"])

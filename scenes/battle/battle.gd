@@ -11,6 +11,7 @@ const DEFENSE_RESOLVE_AFTER := DefenseInput.RESOLVE_AFTER  # judge each hit this
 const SQUARE_LEAD := 0.6             # the defense square starts closing this long before each hit
 const END_DELAY := 1.6
 const DEBUG_LOSS_PRESETS := [0, 4, 11, 21]
+const DEFENSE_HINT := "Z parry   X dodge   hold C block"
 const SAVE_POINT_SCENE := "res://scenes/save_point/save_point.tscn"
 const DEFEAT_SCENE := "res://scenes/defeat/defeat.tscn"
 
@@ -134,27 +135,8 @@ func _on_enemy_attack(attack: BossAttack, targets: Array) -> void:
 		_hit_sampled.append(false)
 		_hit_resolved.append(false)
 	_message.text = attack.telegraph_text if attack.telegraph_text != "" else attack.display_name
-	if attack.party_wide:
-		_hint.text = "WHOLE PARTY: everyone taps on hit"
-	else:
-		var styles := {}
-		for t in targets:
-			styles[(t as Battler).data.defense_style] = true
-		_hint.text = _defense_hint(styles.keys())
+	_hint.text = DEFENSE_HINT
 	_refresh()
-
-
-func _defense_hint(styles: Array) -> String:
-	var parts: Array[String] = []
-	for s in styles:
-		match s:
-			BattlerData.DefenseStyle.PARRY:
-				parts.append("PARRY: tap on hit")
-			BattlerData.DefenseStyle.DODGE:
-				parts.append("DODGE: tap on hit")
-			BattlerData.DefenseStyle.BLOCK:
-				parts.append("BLOCK: hold through hit")
-	return "  ".join(parts)
 
 
 func _on_damage(target: Battler, amount: int, label: String) -> void:
@@ -229,25 +211,43 @@ func _unhandled_input(event: InputEvent) -> void:
 		_float_text(Vector2(160, 24), "DEBUG: Warden losses = %d" % n, Color.ORANGE)
 		get_viewport().set_input_as_handled()
 		return
-	if event.is_action_released("action"):
+	if event.is_action_released("block"):
 		if _mode == Mode.DEFENSE and _defense:
 			_defense.release()
 		return
-	if not event.is_action_pressed("action") or event.is_echo():
+	if event.is_echo():
+		return
+	if _mode == Mode.DEFENSE:
+		var move := _move_for(event)
+		if move >= 0:
+			var t := _now()
+			if t >= _t0:  # presses during the warning blink are ignored
+				_defense.press(t - _t0, move)
+			get_viewport().set_input_as_handled()
+		return
+	if not event.is_action_pressed("action"):
 		return
 	var now := _now()
 	match _mode:
 		Mode.ATTACK_TIMING:
 			if _attack_press < 0.0:
 				_attack_press = now
-		Mode.DEFENSE:
-			if now >= _t0:  # presses during the warning blink are ignored
-				_defense.press(now - _t0)
 		Mode.ENDED:
 			if _victory_wait:
 				_victory_wait = false
 				_change_scene(SAVE_POINT_SCENE)
 	get_viewport().set_input_as_handled()
+
+
+## Which defense a button press means, or -1 if it is not a defense button.
+func _move_for(event: InputEvent) -> int:
+	if event.is_action_pressed("action"):
+		return TimingJudge.Move.PARRY
+	if event.is_action_pressed("dodge"):
+		return TimingJudge.Move.DODGE
+	if event.is_action_pressed("block"):
+		return TimingJudge.Move.BLOCK
+	return -1
 
 
 func _process(delta: float) -> void:
@@ -298,7 +298,7 @@ func _process_defense(now: float) -> void:
 			if now >= hit_t + DEFENSE_RESOLVE_AFTER:
 				_hit_resolved[i] = true
 				var r := _defense.result(i)
-				ctrl.resolve_enemy_hit(i, r["delta"], r["held"], r["carried"])
+				ctrl.resolve_enemy_hit(i, r["move"], r["delta"], r["held"], r["carried"])
 				return  # the controller may have started a new turn
 	# Every upcoming hit gets its own square with the full lead time, so on
 	# multi-hit attacks the next square is already closing in.

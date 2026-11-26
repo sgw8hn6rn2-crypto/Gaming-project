@@ -19,7 +19,7 @@ func _skill(id: String, name: String, cost: int, power: float, target: int, effe
 	return load("res://data/skills/%s.tres" % id)
 
 
-func _char(id: String, name: String, hp: int, atk: int, def: int, spd: int, style: int, skills: Array, color: Color) -> void:
+func _char(id: String, name: String, hp: int, atk: int, def: int, spd: int, skills: Array, color: Color) -> void:
 	var d := BattlerData.new()
 	d.id = StringName(id)
 	d.display_name = name
@@ -27,7 +27,6 @@ func _char(id: String, name: String, hp: int, atk: int, def: int, spd: int, styl
 	d.atk = atk
 	d.def = def
 	d.speed = spd
-	d.defense_style = style
 	d.skills.assign(skills)
 	d.color = color
 	_save(d, "res://data/characters/%s.tres" % id)
@@ -61,12 +60,12 @@ func _initialize() -> void:
 	var rally := _skill("rally", "Rally", 3, 0.2, SkillData.Target.ALL_ALLIES, SkillData.Effect.HEAL, false)
 	var pierce := _skill("pierce", "Pierce", 2, 1.5, SkillData.Target.ENEMY, SkillData.Effect.DAMAGE, true)
 
-	_char("kael", "Kael", 140, 18, 14, 9, BattlerData.DefenseStyle.BLOCK, [bash], Color("#4a7bd1"))
-	_char("mira", "Mira", 95, 16, 8, 12, BattlerData.DefenseStyle.PARRY, [mend, light], Color("#e2c044"))
-	_char("ren", "Ren", 100, 22, 9, 14, BattlerData.DefenseStyle.DODGE, [twin], Color("#3fb36b"))
-	_char("tess", "Tess", 90, 24, 7, 10, BattlerData.DefenseStyle.PARRY, [flare], Color("#d9534f"))
-	_char("oda", "Oda", 130, 19, 13, 8, BattlerData.DefenseStyle.BLOCK, [rally], Color("#8a6bd1"))
-	_char("vey", "Vey", 85, 20, 8, 15, BattlerData.DefenseStyle.DODGE, [pierce], Color("#3fb3b3"))
+	_char("kael", "Kael", 140, 18, 14, 9, [bash], Color("#4a7bd1"))
+	_char("mira", "Mira", 95, 16, 8, 12, [mend, light], Color("#e2c044"))
+	_char("ren", "Ren", 100, 22, 9, 14, [twin], Color("#3fb36b"))
+	_char("tess", "Tess", 90, 24, 7, 10, [flare], Color("#d9534f"))
+	_char("oda", "Oda", 130, 19, 13, 8, [rally], Color("#8a6bd1"))
+	_char("vey", "Vey", 85, 20, 8, 15, [pierce], Color("#3fb3b3"))
 
 	var w := BattlerData.new()
 	w.id = &"warden"

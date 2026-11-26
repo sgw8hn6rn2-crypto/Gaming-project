@@ -68,7 +68,7 @@ The rhythm of play is **calm, then tense, then calm**. Exploration and story are
 - The player must react to enemy attacks with a **dodge or parry** timed to the attack's animation.
 - **[builder's call]** The targeted character is clearly highlighted before the attack lands.
 - **[builder's call]** A party-wide attack needs one well-timed input that protects everyone, never four separate inputs.
-- **[builder's call]** Each character defends differently, for example a tank holds a block while a rogue taps to dodge. Swapping characters changes how a fight feels, not just the numbers.
+- **Every character can parry, dodge and block** (changed 2026-11-26 after playtesting; replaces the earlier one-style-per-character call). The button the player presses picks the defense: parry is the hardest timing and counterattacks, dodge is wider and avoids all damage, block is the easiest and takes a quarter of the damage. Characters may later differ through stats or special reactions, not by locking defenses.
 - **[builder's call]** Outcomes: a perfect parry takes no damage and may counterattack, a dodge takes no damage, a late or early press takes reduced damage, and no input takes full damage.
 - Enemy attacks must have readable wind-ups (telegraphs) so the player can learn the patterns. This is a core rule for every attack.
 
