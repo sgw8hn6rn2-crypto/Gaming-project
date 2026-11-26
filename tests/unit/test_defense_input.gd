@@ -57,6 +57,10 @@ func test_release_breaks_carry() -> void:
 	assert_eq(_run([0.45], [0.7], S.BLOCK), [D.BLOCK, D.MISS, D.MISS])
 
 
+func test_late_dodge_still_registers_as_graze() -> void:
+	assert_eq(_run([0.84], [0.86], S.DODGE), [D.GRAZE, D.MISS, D.MISS])
+
+
 func test_no_input_all_miss() -> void:
 	assert_eq(_run([], [], S.PARRY), [D.MISS, D.MISS, D.MISS])
 

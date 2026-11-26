@@ -11,12 +11,13 @@ const ATTACK_NORMAL_MULT := 1.0
 
 # PARRY style
 const PARRY_PERFECT_WINDOW := 0.05
-const PARRY_GRAZE_WINDOW := 0.15
+## Any parry press outside the perfect window breaks the guard.
+const PARRY_FAIL_MULT := 1.25
 const COUNTER_MULT := 0.5
 
 # DODGE style
-const DODGE_WINDOW := 0.10
-const DODGE_GRAZE_WINDOW := 0.20
+const DODGE_WINDOW := 0.15
+const DODGE_GRAZE_WINDOW := 0.25
 
 # BLOCK style
 const BLOCK_EARLY_WINDOW := 0.30

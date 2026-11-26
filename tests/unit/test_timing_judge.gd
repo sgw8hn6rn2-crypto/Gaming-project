@@ -21,13 +21,16 @@ func test_attack_mults() -> void:
 
 func test_parry_windows() -> void:
 	assert_eq(TimingJudge.judge_defense(S.PARRY, 0.04, false), D.PERFECT_PARRY)
-	assert_eq(TimingJudge.judge_defense(S.PARRY, 0.12, false), D.GRAZE)
-	assert_eq(TimingJudge.judge_defense(S.PARRY, 0.3, false), D.MISS)
+	assert_eq(TimingJudge.judge_defense(S.PARRY, 0.12, false), D.BROKEN, "failed parry is punished")
+	assert_eq(TimingJudge.judge_defense(S.PARRY, -0.2, false), D.BROKEN)
+	assert_eq(TimingJudge.judge_defense(S.PARRY, 0.3, false), D.BROKEN)
 
 
 func test_dodge_windows() -> void:
 	assert_eq(TimingJudge.judge_defense(S.DODGE, -0.09, false), D.DODGE)
-	assert_eq(TimingJudge.judge_defense(S.DODGE, 0.18, false), D.GRAZE)
+	assert_eq(TimingJudge.judge_defense(S.DODGE, 0.14, false), D.DODGE, "dodge is wider than parry")
+	assert_eq(TimingJudge.judge_defense(S.DODGE, 0.24, false), D.GRAZE)
+	assert_eq(TimingJudge.judge_defense(S.DODGE, 0.3, false), D.MISS)
 
 
 func test_block_windows() -> void:
@@ -52,6 +55,7 @@ func test_defense_mults() -> void:
 	assert_almost(TimingJudge.defense_mult(D.BLOCK), 0.25)
 	assert_almost(TimingJudge.defense_mult(D.GRAZE), 0.5)
 	assert_almost(TimingJudge.defense_mult(D.MISS), 1.0)
+	assert_almost(TimingJudge.defense_mult(D.BROKEN), 1.25)
 
 
 func test_counter_only_on_perfect_parry() -> void:

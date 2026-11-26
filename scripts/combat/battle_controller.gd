@@ -24,6 +24,7 @@ const DEFENSE_LABELS := {
 	TimingJudge.DefenseResult.BLOCK: "BLOCK",
 	TimingJudge.DefenseResult.GRAZE: "GRAZE",
 	TimingJudge.DefenseResult.MISS: "",
+	TimingJudge.DefenseResult.BROKEN: "BROKEN!",
 }
 
 var party: Party

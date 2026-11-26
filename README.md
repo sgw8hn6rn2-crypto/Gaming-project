@@ -28,8 +28,8 @@ Build plan: `docs/superpowers/plans/2026-11-25-combat-slice.md`
 - **Your turn:** choose Attack, Skill, Item or Swap. On attacks, a ring closes on the boss. Press when it closes for bonus damage. Missing still deals normal damage.
 - **Swap:** one free swap per turn with a bench character. It doesn't use up your turn.
 - **Boss turn:** the targeted character blinks red, then a square closes in on them. It lands exactly when the hit lands. Every character can defend three ways. The button you press decides which:
-  - **Parry** (Z): tap exactly on the hit. Hardest timing. A perfect parry takes no damage and counterattacks.
-  - **Dodge** (X): tap on the hit. A wider window. No damage, no counter.
+  - **Parry** (Z): tap exactly on the hit (±0.05 s). High risk, high reward. A perfect parry takes no damage, counterattacks and gives +1 SP. A missed parry is **BROKEN!** and takes 125% damage.
+  - **Dodge** (X): tap on the hit (±0.15 s). The safe choice. No damage, no counter. A near miss (±0.25 s) is a graze for half damage.
   - **Block** (hold C): press just before the hit and hold. Easiest. You take a quarter of the damage, and the hold carries through multi-hit attacks.
   - Pressing too early locks you out of that hit, so mashing doesn't work.
   - On whole-party attacks, your one press applies to everyone. There's at most one counterattack.

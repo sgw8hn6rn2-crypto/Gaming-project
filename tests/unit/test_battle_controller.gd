@@ -290,5 +290,13 @@ func test_party_wide_perfect_is_parry_with_one_counter() -> void:
 
 
 func test_party_wide_graze_half_damage_for_all() -> void:
-	var r := _party_wide_labels(M.PARRY, 0.12)
+	var r := _party_wide_labels(M.DODGE, 0.22)
 	assert_eq(r["labels"], ["GRAZE", "GRAZE", "GRAZE", "GRAZE"])
+
+
+func test_failed_parry_takes_extra_damage() -> void:
+	var r := _party_wide_labels(M.PARRY, 0.12)
+	assert_eq(r["labels"], ["BROKEN!", "BROKEN!", "BROKEN!", "BROKEN!"])
+	assert_eq(r["counters"], 0)
+	for t in r["party"].active:
+		assert_eq(t.hp, 100 - DamageCalc.damage(30, 1.0, 1.25, 10))

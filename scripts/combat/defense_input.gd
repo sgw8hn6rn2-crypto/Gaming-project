@@ -8,7 +8,7 @@ extends RefCounted
 ## - A block hold that started inside the block window carries through later
 ##   hits of the same attack while it is held.
 
-const RESOLVE_AFTER := 0.2  # a hit stops taking presses this long after it lands
+const RESOLVE_AFTER := Tuning.DODGE_GRAZE_WINDOW  # a hit stops taking presses this long after it lands
 
 var hit_times: PackedFloat32Array
 var _press := PackedFloat64Array()

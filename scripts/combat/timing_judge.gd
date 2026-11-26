@@ -4,7 +4,8 @@ extends RefCounted
 ## press_delta = press time minus impact time, in seconds. INF means no press.
 
 enum AttackResult { PERFECT, GOOD, NORMAL }
-enum DefenseResult { PERFECT_PARRY, DODGE, BLOCK, GRAZE, MISS }
+## BROKEN: a parry attempt that missed the perfect window. It takes extra damage.
+enum DefenseResult { PERFECT_PARRY, DODGE, BLOCK, GRAZE, MISS, BROKEN }
 ## The defense the player chose by which button they pressed.
 enum Move { PARRY, DODGE, BLOCK }
 
@@ -45,8 +46,7 @@ static func judge_defense(move: Move, press_delta: float, held_at_hit: bool, car
 		Move.PARRY:
 			if _within(press_delta, Tuning.PARRY_PERFECT_WINDOW):
 				return DefenseResult.PERFECT_PARRY
-			if _within(press_delta, Tuning.PARRY_GRAZE_WINDOW):
-				return DefenseResult.GRAZE
+			return DefenseResult.BROKEN
 		Move.DODGE:
 			if _within(press_delta, Tuning.DODGE_WINDOW):
 				return DefenseResult.DODGE
@@ -68,6 +68,8 @@ static func defense_mult(r: DefenseResult) -> float:
 			return Tuning.BLOCK_MULT
 		DefenseResult.GRAZE:
 			return Tuning.GRAZE_MULT
+		DefenseResult.BROKEN:
+			return Tuning.PARRY_FAIL_MULT
 	return Tuning.MISS_MULT
 
 
